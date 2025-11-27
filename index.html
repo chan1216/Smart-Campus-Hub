@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스마트 실습실 관리 키오스크</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+.kiosk-container {
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    margin: 0 auto;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(45deg, #003366, #00509e);
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+header i {
+    margin-right: 10px;
+}
+
+main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.main-nav {
+    display: flex;
+    background-color: #f1f3f5;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.nav-button {
+    flex: 1;
+    padding: 1.2rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border-bottom: 4px solid transparent;
+    color: #495057;
+}
+
+.nav-button i {
+    margin-right: 8px;
+}
+
+.nav-button.active {
+    color: #003366;
+    border-bottom-color: #00509e;
+    background-color: #fff;
+}
+
+.content-section {
+    display: none;
+    padding: 2rem;
+    overflow-y: auto;
+    flex-grow: 1;
+    background-color: #fff;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.content-section h2 {
+    font-size: 1.5rem;
+    color: #003366;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f1f3f5;
+}
+
+.content-section h2 i {
+    margin-right: 10px;
+}
+
+#contact-form .form-group {
+    margin-bottom: 1.2rem;
+}
+
+#contact-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+#contact-form input,
+#contact-form select,
+#contact-form textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#contact-form input:focus,
+#contact-form select:focus,
+#contact-form textarea:focus {
+    outline: none;
+    border-color: #00509e;
+    box-shadow: 0 0 0 3px rgba(0, 80, 158, 0.1);
+}
+
+.submit-button {
+    width: 100%;
+    padding: 1.1rem;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(45deg, #28a745, #218838);
+    color: white;
+    font-weight: 700;
+    margin-top: 1rem;
+    transition: background 0.3s;
+}
+
+.submit-button:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+}
+
+.submit-button i {
+    margin-right: 8px;
+}
+
+#date-picker-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: thin;
+}
+
+.date-chip {
+    flex-shrink: 0;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.date-chip .day {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.date-chip .date {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.date-chip.selected {
+    background-color: #00509e;
+    color: white;
+    border-color: #003366;
+}
+
+.date-chip.selected .day {
+    color: #e9ecef;
+}
+
+.time-picker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.time-chip {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.time-chip:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.time-chip.selected {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.time-chip.reserved {
+    background: #f5f5f5;
+    color: #999;
+    border-color: #e0e0e0;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.reservation-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.reservation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.reservation-item {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    padding: 15px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reservation-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.reservation-item-info .main-info {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.reservation-item-info .sub-info {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.cancel-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid white;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.cancel-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.no-reservations {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-size: 1rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.content-section.active {
+    display: block;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1000;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s;
+}
+
+.modal-overlay.visible .modal-content {
+    transform: scale(1);
+}
+
+.modal-content p {
+    margin: 0 0 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+#alert-close-button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    background-color: #00509e;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.calendar-modal-content {
+    max-width: 450px;
+    padding: 1.5rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#calendar-month-year {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.calendar-nav-button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: #00509e;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+}
+
+.calendar-grid-header {
+    font-weight: bold;
+    color: #6c757d;
+    padding-bottom: 0.5rem;
+}
+
+.calendar-day {
+    padding: 0.7rem 0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.calendar-day.other-month {
+    color: #ced4da;
+    cursor: default;
+}
+
+.calendar-day:not(.other-month):hover {
+    background-color: #e7f5ff;
+}
+
+.calendar-day.selected-date {
+    background-color: #00509e;
+    color: white;
+}
+
+.date-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.more-button {
+    flex-shrink: 0;
+    background: #00509e;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.more-button:hover {
+    background: #003366;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+#room-select {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#room-select:focus {
+    outline: none;
+    border-color: #00509e;
+    box-shadow: 0 0 0 3px rgba(0, 80, 158, 0.1);
+}
+
+#timetable-container h3 {
+    font-size: 1.3rem;
+    color: #003366;
+    margin-bottom: 1rem;
+}
+
+.reservation-actions {
+    margin-top: 1.5rem;
+}
+    </style>
+</head>
+<body>
+    <div class="kiosk-container">
+        <header>
+            <h1><i class="fa-solid fa-school"></i> 스마트 실습실 관리</h1>
+        </header>
+        <main>
+            <nav class="main-nav">
+                <button id="nav-contact" class="nav-button active"><i class="fa-solid fa-handshake"></i> 상담 예약</button>
+                <button id="nav-reserve" class="nav-button"><i class="fa-solid fa-calendar-check"></i> 실습실 예약</button>
+            </nav>
+
+            <!-- 교수님과 상담 예약 섹션 -->
+            <section id="contact-section" class="content-section active">
+                <h2><i class="fa-solid fa-calendar-plus"></i> 교수님과 상담 예약</h2>
+                <form id="contact-form">
+                    <div class="form-group">
+                        <label for="professor-select">교수님 선택</label>
+                        <select id="professor-select" name="professor">
+                            <option value="prof_kim">김교수님</option>
+                            <option value="prof_lee">이교수님</option>
+                            <option value="prof_park">박교수님</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-name">이름</label>
+                        <input type="text" id="student-name" name="student-name" placeholder="이름을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-id">학번</label>
+                        <input type="text" id="student-id" name="student-id" placeholder="학번을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="counseling-topic">상담 주제</label>
+                        <select id="counseling-topic" name="counseling-topic">
+                            <option value="진로 상담">진로 상담</option>
+                            <option value="학업 상담">학업 상담</option>
+                            <option value="기타 문의">기타 문의</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="counseling-datetime">희망 날짜 및 시간</label>
+                        <input type="text" id="counseling-datetime" name="counseling-datetime" placeholder="예: 월요일 14:00 ~ 15:00" required>
+                    </div>
+                    <button type="submit" class="submit-button"><i class="fa-solid fa-check"></i> 상담 예약하기</button>
+                </form>
+            </section>
+
+            <!-- 실습실 예약 섹션 -->
+            <section id="reserve-section" class="content-section">
+                <h2><i class="fa-solid fa-calendar-day"></i> 실습실 예약</h2>
+                <div class="reservation-controls">
+                    <div class="form-group">
+                        <label for="date-picker-container">날짜 선택</label>
+                        <div class="date-selector">
+                            <div id="date-picker-container">
+                                <!-- JS로 날짜 칩 생성 -->
+                            </div>
+                            <button id="more-dates-button" class="more-button"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="time-picker-container">시간 선택</label>
+                        <div id="time-picker-container" class="time-picker">
+                            <!-- JS로 시간 칩 생성 -->
+                        </div>
+                    </div>
+                </div>
+                <div class="reservation-controls">
+                    <div class="form-group">
+                        <label for="room-select">강의실 선택</label>
+                        <select id="room-select">
+                            <option value="204호">204호 (프로그래밍실)</option>
+                            <option value="301호">301호 (네트워크실)</option>
+                            <option value="302호">302호 (데이터베이스실)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="timetable-container">
+                    <h3>예약 현황</h3>
+                    <div id="reservation-list" class="reservation-list">
+                        <p class="no-reservations">예약 내역이 없습니다.</p>
+                    </div>
+                </div>
+                <div class="reservation-actions">
+                    <button id="reserve-button" class="submit-button"><i class="fa-solid fa-check-circle"></i> 예약하기</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Alert Modal -->
+    <div id="alert-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="alert-message"></p>
+            <button id="alert-close-button" class="modal-close-button">확인</button>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div id="calendar-modal" class="modal-overlay">
+        <div class="modal-content calendar-modal-content">
+            <div class="calendar-header">
+                <button id="prev-month-button" class="calendar-nav-button"><i class="fa-solid fa-chevron-left"></i></button>
+                <h3 id="calendar-month-year"></h3>
+                <button id="next-month-button" class="calendar-nav-button"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar-grid">
+                <div class="calendar-grid-header">일</div>
+                <div class="calendar-grid-header">월</div>
+                <div class="calendar-grid-header">화</div>
+                <div class="calendar-grid-header">수</div>
+                <div class="calendar-grid-header">목</div>
+                <div class="calendar-grid-header">금</div>
+                <div class="calendar-grid-header">토</div>
+            </div>
+            <div id="calendar-body" class="calendar-grid"></div>
+        </div>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 네비게이션 ---
+    const navButtons = document.querySelectorAll('.nav-button');
+    const contactSection = document.getElementById('contact-section');
+    const reserveSection = document.getElementById('reserve-section');
+
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            if (button.id === 'nav-contact') {
+                contactSection.classList.add('active');
+                reserveSection.classList.remove('active');
+            } else if (button.id === 'nav-reserve') {
+                reserveSection.classList.add('active');
+                contactSection.classList.remove('active');
+            }
+        });
+    });
+
+    // --- 교수님과 상담 예약 ---
+    const contactForm = document.getElementById('contact-form');
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('student-name').value;
+        const id = document.getElementById('student-id').value;
+        const professor = document.getElementById('professor-select').value;
+        const topic = document.getElementById('counseling-topic').value;
+        const datetime = document.getElementById('counseling-datetime').value;
+
+        showAlert(`${name}님의 상담예약이 완료되었습니다.\\n\\n교수님: ${professor}\\n주제: ${topic}\\n날짜/시간: ${datetime}`);
+        contactForm.reset();
+    });
+
+    // --- Modals ---
+    const alertModal = document.getElementById('alert-modal');
+    const alertMessage = document.getElementById('alert-message');
+    const alertCloseButton = document.getElementById('alert-close-button');
+    const calendarModal = document.getElementById('calendar-modal');
+    const moreDatesButton = document.getElementById('more-dates-button');
+
+    function showAlert(message) {
+        alertMessage.innerHTML = message.replace(/\\n/g, '<br>');
+        alertModal.classList.add('visible');
+    }
+
+    alertCloseButton.addEventListener('click', () => {
+        alertModal.classList.remove('visible');
+    });
+
+    moreDatesButton.addEventListener('click', () => {
+        calendarModal.classList.add('visible');
+        renderCalendar(currentMonth, currentYear);
+    });
+
+    calendarModal.addEventListener('click', (e) => {
+        if (e.target === calendarModal) {
+            calendarModal.classList.remove('visible');
+        }
+    });
+
+    // --- 실습실 예약 ---
+    const datePickerContainer = document.getElementById('date-picker-container');
+    const timePickerContainer = document.getElementById('time-picker-container');
+    const roomSelect = document.getElementById('room-select');
+    const reservationList = document.getElementById('reservation-list');
+    const reserveButton = document.getElementById('reserve-button');
+
+    const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    let reservations = {
+        '204호': {},
+        '301호': {},
+        '302호': {}
+    };
+    let selectedDate = '';
+    let selectedTime = '';
+
+    // 날짜 선택 UI 생성 (오늘부터 7일)
+    function populateDates(startDate) {
+        const baseDate = startDate ? new Date(startDate) : new Date();
+        datePickerContainer.innerHTML = '';
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(baseDate);
+            date.setDate(baseDate.getDate() + i);
+            
+            const dateString = date.toISOString().split('T')[0];
+            const day = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
+            const dateNum = date.getDate();
+
+            const chip = document.createElement('div');
+            chip.className = 'date-chip';
+            chip.dataset.date = dateString;
+            chip.innerHTML = `<div class="day">${day}</div><div class="date">${dateNum}</div>`;
+
+            if (i === 0) {
+                chip.classList.add('selected');
+                selectedDate = dateString;
+            }
+
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                selectedDate = chip.dataset.date;
+                populateTimes();
+            });
+
+            datePickerContainer.appendChild(chip);
+        }
+        populateTimes();
+    }
+
+    // 시간 선택 UI 생성
+    function populateTimes() {
+        const selectedRoom = roomSelect.value;
+        timePickerContainer.innerHTML = '';
+        
+        times.forEach(time => {
+            const chip = document.createElement('div');
+            chip.className = 'time-chip';
+            chip.dataset.time = time;
+            chip.textContent = time;
+
+            const reservationKey = `${selectedDate}_${time}`;
+            if (reservations[selectedRoom] && reservations[selectedRoom][reservationKey]) {
+                chip.classList.add('reserved');
+            } else {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('selected'));
+                    chip.classList.add('selected');
+                    selectedTime = time;
+                });
+            }
+
+            timePickerContainer.appendChild(chip);
+        });
+    }
+
+    // 예약 목록 렌더링
+    function renderReservationList() {
+        reservationList.innerHTML = '';
+        let hasReservations = false;
+
+        Object.keys(reservations).forEach(room => {
+            Object.keys(reservations[room]).forEach(key => {
+                if (reservations[room][key]) {
+                    hasReservations = true;
+                    const [date, time] = key.split('_');
+                    
+                    const item = document.createElement('div');
+                    item.className = 'reservation-item';
+                    item.innerHTML = `
+                        <div class="reservation-item-info">
+                            <div class="main-info"><i class="fas fa-calendar-check"></i> ${room}</div>
+                            <div class="sub-info"><i class="fas fa-clock"></i> ${date} ${time}</div>
+                        </div>
+                        <button class="cancel-button" data-room="${room}" data-key="${key}">
+                            <i class="fas fa-times"></i> 취소
+                        </button>
+                    `;
+                    
+                    const cancelBtn = item.querySelector('.cancel-button');
+                    cancelBtn.addEventListener('click', () => {
+                        delete reservations[room][key];
+                        renderReservationList();
+                        populateTimes();
+                        showAlert('예약이 취소되었습니다.');
+                    });
+                    
+                    reservationList.appendChild(item);
+                }
+            });
+        });
+
+        if (!hasReservations) {
+            reservationList.innerHTML = '<p class="no-reservations">예약 내역이 없습니다.</p>';
+        }
+    }
+
+    // --- Calendar Modal Logic ---
+    const calendarMonthYear = document.getElementById('calendar-month-year');
+    const calendarBody = document.getElementById('calendar-body');
+    const prevMonthButton = document.getElementById('prev-month-button');
+    const nextMonthButton = document.getElementById('next-month-button');
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+
+    prevMonthButton.addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        renderCalendar(currentMonth, currentYear);
+    });
+
+    nextMonthButton.addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        renderCalendar(currentMonth, currentYear);
+    });
+
+    function renderCalendar(month, year) {
+        calendarBody.innerHTML = '';
+        calendarMonthYear.textContent = `${year}년 ${month + 1}월`;
+        
+        let firstDayOfMonth = (new Date(year, month)).getDay();
+        let daysInMonth = 32 - new Date(year, month, 32).getDate();
+
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            let cell = document.createElement("div");
+            cell.classList.add('calendar-day', 'other-month');
+            calendarBody.appendChild(cell);
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            let cell = document.createElement("div");
+            cell.classList.add('calendar-day');
+            cell.textContent = i;
+            
+            let cellDate = new Date(year, month, i);
+            if (cellDate < today.setHours(0,0,0,0)) {
+                 cell.classList.add('other-month');
+            } else {
+                cell.addEventListener('click', () => {
+                    populateDates(cellDate);
+                    calendarModal.classList.remove('visible');
+                });
+            }
+            calendarBody.appendChild(cell);
+        }
+    }
+
+    // 이벤트 리스너
+    roomSelect.addEventListener('change', () => populateTimes());
+
+    reserveButton.addEventListener('click', () => {
+        const selectedRoom = roomSelect.value;
+
+        if (!selectedDate) {
+            showAlert('날짜를 선택하세요.');
+            return;
+        }
+
+        if (!selectedTime) {
+            showAlert('시간을 선택하세요.');
+            return;
+        }
+
+        const reservationKey = `${selectedDate}_${selectedTime}`;
+
+        if (!reservations[selectedRoom]) {
+            reservations[selectedRoom] = {};
+        }
+        reservations[selectedRoom][reservationKey] = true;
+
+        showAlert(`${selectedDate} ${selectedTime} ${selectedRoom} 예약이 완료되었습니다.`);
+        selectedTime = '';
+        populateTimes();
+        renderReservationList();
+    });
+
+    // 초기화
+    populateDates();
+    renderReservationList();
+});
+    </script>
+</body>
+</html>
